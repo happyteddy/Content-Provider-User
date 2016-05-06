@@ -13,6 +13,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -21,6 +23,8 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import org.w3c.dom.Text;
 
 import java.io.File;
 
@@ -65,6 +69,42 @@ public class UserActivity extends AppCompatActivity {
     public void myListSellOnClick(View view) {
         setContentView(R.layout.activity_user);
         displaySell();
+    }
+    public void myListBuyOnClick(View view) {
+        setContentView(R.layout.activity_user);
+        displayBuy();
+    }
+    public void displayBuy() {
+        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
+        Uri uri = Uri.parse(URL);
+        String[] columns = new String[]{
+                _ID,
+                SELLER_NAME,
+                SELLER_ID,
+                BOOK_NAME,
+                PRICE
+        };
+        String selection = BUYER_NAME + " = ?  AND " + BUYER_ID + " = ? ";
+        String[] selectionArgs = {mUserName , Integer.toString(mUserId)};
+        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        int[] to = new int[]{
+                R.id.id,
+                R.id.seller_name,
+                R.id.seller_id,
+                R.id.book_name,
+                R.id.price,
+        };
+
+        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list, c, columns, to, 0);
+
+        ListView listView = (ListView) findViewById(R.id.listView);
+        if (null != listView) {
+            listView.setAdapter(dataAdapter);
+        }
     }
     public void displaySell() {
         // Retrieve student records
@@ -178,6 +218,10 @@ public class UserActivity extends AppCompatActivity {
     }
 
     public void insert(View view) {
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+
         String b = "";
         int p = 0;
         EditText bookName = (EditText) findViewById(R.id.addBookName);
@@ -207,5 +251,131 @@ public class UserActivity extends AppCompatActivity {
                 Toast.makeText(getBaseContext(), "Something Error !  There's not input data !", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    public void search(View view) {
+
+        setContentView(R.layout.search);
+
+        TextView name = (TextView) findViewById(R.id.user_name);
+        TextView id = (TextView) findViewById(R.id.user_id);
+
+        if ((name != null) && (id != null)) {
+            name.append(mUserName);
+            id.append(Integer.toString(mUserId));
+        }
+    }
+    public void searchBook (View view) {
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+
+        TextView book = (TextView)findViewById(R.id.searchBookName) ;
+        String searchBook = "";
+        if(null != book){
+            searchBook = book.getText().toString();
+        }
+
+
+        setContentView(R.layout.result);
+        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
+        Uri uri = Uri.parse(URL);
+
+        String[] columns = new String[]{
+                _ID,
+                SELLER_NAME,
+                SELLER_ID,
+                PRICE,
+                SOLD
+        };
+        String selection = BOOK_NAME + " = ?   " ;
+        String[] selectionArgs = { searchBook };
+        String sortOrder = SOLD +" , "+ PRICE;
+        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, sortOrder);
+        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        int[] to = new int[]{
+                R.id.id,
+                R.id.seller_name,
+                R.id.seller_id,
+                R.id.price,
+                R.id.sold
+        };
+
+
+        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_book, c, columns, to, 0);
+
+        final ListView listView = (ListView) findViewById(R.id.listViewResult);
+        if (null != listView) {
+            listView.setAdapter(dataAdapter);
+        }
+
+        TextView text = (TextView) findViewById(R.id.searchText);
+        if(null != text){
+            text.setText(" BOOK : " + searchBook);
+        }
+
+    }
+
+    public void searchSeller (View view) {
+
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(),InputMethodManager.HIDE_NOT_ALWAYS);
+
+        TextView sName = (TextView)findViewById(R.id.searchSellerName) ;
+        TextView sId = (TextView)findViewById(R.id.searchSellerId) ;
+        String searchSName = "";
+        String searchSId = "";
+        if( (null != sName) && (null != sId) ){
+            searchSName = sName.getText().toString();
+            searchSId = sId.getText().toString();
+        }
+
+
+        setContentView(R.layout.result);
+        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
+        Uri uri = Uri.parse(URL);
+
+        String[] columns = new String[]{
+                _ID,
+                BOOK_NAME,
+                PRICE,
+                BUYER_NAME,
+                BUYER_ID
+        };
+        String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
+        String[] selectionArgs = { searchSName, searchSId };
+        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, SOLD);
+        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+
+        if (c != null) {
+            c.moveToFirst();
+        }
+
+        int[] to = new int[]{
+                R.id.id,
+                R.id.book_name,
+                R.id.price,
+                R.id.buyer_name,
+                R.id.buyer_id
+        };
+
+
+        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_seller, c, columns, to, 0);
+
+        final ListView listView = (ListView) findViewById(R.id.listViewResult);
+        if (null != listView) {
+            listView.setAdapter(dataAdapter);
+        }
+
+        TextView text = (TextView) findViewById(R.id.searchText);
+        if(null != text){
+            text.setText(" Seller : " + searchSName + " - " + searchSId);
+        }
+
     }
 }

@@ -8,7 +8,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="3"
+        android:layout_weight="4"
         android:orientation="vertical">
 
         <LinearLayout
@@ -87,11 +87,19 @@
         </LinearLayout>
     </LinearLayout>
 
-
-    <ListView
-        android:id="@+id/listView"
+    <TextView
+        android:id="@+id/searchText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1" />
+        android:layout_weight="5"
+        android:hint="@string/empty"
+        android:textAlignment="center"
+        android:textSize="15pt" />
+
+    <ListView
+        android:id="@+id/listViewResult"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2" />
 
 </LinearLayout>
