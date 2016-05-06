@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Book Store (User)</string>
+    <string name="enter">Enter</string>
+    <string name="user_name">User Name : </string>
+    <string name="user_id">User ID : </string>
+    <string name="allList">All List</string>
+    <string name="myList_sell">My List - Sell</string>
+    <string name="myList_buy">My List - Buy</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
+    <string name="update">Update</string>
+    <string name="search">Search</string>
+    <string name="id">\nID</string>
+    <string name="seller_name">seller name :</string>
+    <string name="seller_id">seller ID :</string>
+    <string name="book_name">book name :</string>
+    <string name="price">price :</string>
+    <string name="buyer_name">buyer name :</string>
+    <string name="buyer_id">buyer ID :</string>
+    <string name="sold">sold</string>
+    <string name="ok"> OK </string>
+</resources>
