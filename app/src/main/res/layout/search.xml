@@ -34,7 +34,12 @@
                 android:layout_weight="1"
                 android:onClick="add"
                 android:text="@string/add" />
-
+            <TextView
+                android:id="@+id/emptySpace"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:textAlignment="center"/>
             <Button
                 android:id="@+id/deleteButton"
                 android:layout_width="match_parent"
@@ -44,14 +49,6 @@
                 android:onClick="delete"
                 android:text="@string/delete" />
 
-            <Button
-                android:id="@+id/updateList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                android:onClick=""
-                android:text="@string/update" />
         </LinearLayout>
 
         <LinearLayout

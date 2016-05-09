@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
-        android:hint="@string/user_name" />
+        android:hint="@string/user_name"
+        android:textAlignment="center" />
 
     <EditText
         android:id="@+id/userId"
@@ -24,7 +25,8 @@
         android:layout_below="@+id/userName"
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
-        android:hint="@string/user_id" />
+        android:hint="@string/user_id"
+        android:textAlignment="center" />
 
     <Button
         android:id="@+id/enterButton"
