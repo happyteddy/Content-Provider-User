@@ -13,6 +13,7 @@
     <string name="id">\nID</string>
     <string name="seller_name">seller name :</string>
     <string name="seller_id">seller ID :</string>
+    <string name="seller">Seller :</string>
     <string name="book_name">book name :</string>
     <string name="price">price :</string>
     <string name="buyer_name">buyer name :</string>
@@ -20,4 +21,20 @@
     <string name="sold">sold</string>
     <string name="ok"> OK </string>
     <string name="empty"> - </string>
+    <string name="success"> Success ! </string>
+    <string name="yes"> Yes </string>
+    <string name="no"> No </string>
+
+    <string name="toast_delete"> Delete all data : </string>
+    <string name="toast_noData"> Something Error !  There\'s not input data ! </string>
+
+    <string name="text_Buy"> Buyer ( = User) : </string>
+    <string name="text_Sell"> Seller ( = User ) : </string>
+    <string name="text_Sold_False"> Sold = false </string>
+
+    <string name="mes_cantUpdate"> You can\'t change the price !</string>
+    <string name="mes_cantBuy"> You can\'t buy this book ! ( Seller = User )</string>
+    <string name="mes_wantToBuy"> Do you want to buy this book ? </string>
+
+    <string name="title_newPrice"> Enter new price  : </string>
 </resources>

@@ -34,7 +34,8 @@ public class UserActivity extends AppCompatActivity {
     SharedPreferences mPref;
     String mUserName;
     int mUserId;
-
+    public static final String URISTRING = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
+    public static final Uri URI = Uri.parse(URISTRING);
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,10 +51,8 @@ public class UserActivity extends AppCompatActivity {
     }
 
     public void delete(View view) {
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
-        int d = getContentResolver().delete(uri, null, null);
-        Toast.makeText(getBaseContext(), "Delete all data : " + d, Toast.LENGTH_SHORT).show();
+        int d = getContentResolver().delete(URI, null, null);
+        Toast.makeText(getBaseContext(), R.string.toast_delete + d, Toast.LENGTH_SHORT).show();
         display();
     }
 
@@ -75,10 +74,9 @@ public class UserActivity extends AppCompatActivity {
     public void displayBuy() {
         TextView text = (TextView) findViewById(R.id.infoText);
         if (null != text) {
-            text.setText(" Buyer ( = User ) : " + mUserName + " - " + mUserId);
+            String showBuyer = getString(R.string.text_Buy) + mUserName + getString(R.string.empty) + Integer.toString(mUserId) ;
+            text.setText(showBuyer);
         }
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
         String[] columns = new String[]{
                 _ID,
                 SELLER_NAME,
@@ -88,7 +86,7 @@ public class UserActivity extends AppCompatActivity {
         };
         String selection = BUYER_NAME + " = ?  AND " + BUYER_ID + " = ? ";
         String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
-        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
         if (c != null) {
             c.moveToFirst();
         }
@@ -112,11 +110,11 @@ public class UserActivity extends AppCompatActivity {
     public void displaySell() {
         TextView text = (TextView) findViewById(R.id.infoText);
         if (null != text) {
-            text.setText(" Seller ( = User ) : " + mUserName + " - " + mUserId);
+            String showSeller = getString(R.string.text_Sell) + mUserName + getString(R.string.empty) + Integer.toString(mUserId);
+            text.setText(showSeller);
         }
         // Retrieve student records
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
+
         String[] columns = new String[]{
                 _ID,
                 BOOK_NAME,
@@ -125,7 +123,7 @@ public class UserActivity extends AppCompatActivity {
         };
         String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
         String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
-        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
         //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
 
         if (c != null) {
@@ -153,50 +151,49 @@ public class UserActivity extends AppCompatActivity {
                     final String selection = _ID + " = ? ";
                     final String select = Integer.toString(position);
                     final String[] selectionArgs = {select};
-                    final String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-                    final Uri uri = Uri.parse(URL);
+
                     String[] columns = {_ID, SOLD, BOOK_NAME, PRICE};
-                    Cursor soldCursor = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+                    Cursor soldCursor = getContentResolver().query(URI, columns, selection, selectionArgs, null);
 
                     soldCursor.moveToFirst();
                     final String isSold = soldCursor.getString(1);
                     final String book = soldCursor.getString(2);
                     final int price = soldCursor.getInt(3);
                     soldCursor.close();
-
+                    final String mes = getString(R.string.book_name) + book + getString(R.string.price) + Integer.toString(price) ;
                     new AlertDialog.Builder(UserActivity.this)
-                            .setMessage("BOOK : "+ book+ "    PRICE :" + price )
-                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                            .setMessage(mes)
+                            .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    int d = getContentResolver().delete(uri, selection, selectionArgs);
+                                    int d = getContentResolver().delete(URI, selection, selectionArgs);
                                     displaySell();
                                 }
                             })
-                            .setNegativeButton("Update", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(R.string.update, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     LayoutInflater inflater = LayoutInflater.from(UserActivity.this);
                                     final View v = inflater.inflate(R.layout.dialog_update, null);
                                     if (Integer.parseInt(isSold) == 0) {
                                         new AlertDialog.Builder(UserActivity.this)
-                                                .setTitle("Enter new price  : ")
+                                                .setTitle(R.string.title_newPrice)
                                                 .setView(v)
-                                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         EditText editText = (EditText) (v.findViewById(R.id.updatePrice));
                                                         String newPrice = editText.getText().toString();
                                                         ContentValues args = new ContentValues();
                                                         args.put(PRICE, newPrice);
-                                                        getContentResolver().update(uri, args, selection, selectionArgs);
+                                                        getContentResolver().update(URI, args, selection, selectionArgs);
                                                         displaySell();
                                                     }
                                                 }).show();
                                     } else {
                                         new AlertDialog.Builder(UserActivity.this)
-                                                .setMessage("You can't change the price !")
-                                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                .setMessage(R.string.mes_cantUpdate)
+                                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                                     @Override
                                                     public void onClick(DialogInterface dialog, int which) {
                                                         // do nothing
@@ -214,10 +211,9 @@ public class UserActivity extends AppCompatActivity {
     public void display() {
         TextView text = (TextView) findViewById(R.id.infoText);
         if (null != text) {
-            text.setText(" Sold = false ");
+            text.setText(R.string.text_Sold_False);
         }
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
+
         String[] columns = new String[]{
                 _ID,
                 SELLER_NAME,
@@ -227,7 +223,7 @@ public class UserActivity extends AppCompatActivity {
         };
         String selection = SOLD + " = ? ";
         String[] selectionArgs = {"0"};
-        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
         //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
 
         if (c != null) {
@@ -255,10 +251,9 @@ public class UserActivity extends AppCompatActivity {
                     final String selection = _ID + " = ? ";
                     final String select = Integer.toString(position);
                     final String[] selectionArgs = {select};
-                    final String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-                    final Uri uri = Uri.parse(URL);
+
                     String[] columns = {_ID, SELLER_NAME, SELLER_ID};
-                    Cursor soldCursor = getContentResolver().query(uri, columns, selection, selectionArgs, null);
+                    Cursor soldCursor = getContentResolver().query(URI, columns, selection, selectionArgs, null);
 
                     soldCursor.moveToFirst();
                     final String sellerName = soldCursor.getString(1);
@@ -267,8 +262,8 @@ public class UserActivity extends AppCompatActivity {
 
                     if ((sellerName.equals(mUserName)) && (sellerId==mUserId)) {
                         new AlertDialog.Builder(UserActivity.this)
-                                .setMessage("You can't biy this book ! ( Seller = User )")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                .setMessage(R.string.mes_cantBuy)
+                                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
 
@@ -276,26 +271,25 @@ public class UserActivity extends AppCompatActivity {
                                 }).show();
                     } else {
                         new AlertDialog.Builder(UserActivity.this)
-                                .setMessage("Do you want to buy this book ?")
-                                .setPositiveButton("Yes ", new DialogInterface.OnClickListener() {
+                                .setMessage(R.string.mes_wantToBuy)
+                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         ContentValues args = new ContentValues();
                                         args.put(SOLD, true);
                                         args.put(BUYER_NAME,mUserName);
                                         args.put(BUYER_ID, mUserId);
-                                        getContentResolver().update(uri, args, selection, selectionArgs);
+                                        getContentResolver().update(URI, args, selection, selectionArgs);
                                         displaySell();
                                     }
                                 })
-                                .setNegativeButton("NO ", new DialogInterface.OnClickListener() {
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         //  do nothing
                                     }
                                 }).show();
                     }
-
                     return false;
                 }
             });
@@ -338,14 +332,12 @@ public class UserActivity extends AppCompatActivity {
                 values.put(BUYER_NAME, "");
                 values.put(BUYER_ID, "");
 
-                String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-                Uri uri = Uri.parse(URL);
-                getContentResolver().insert(uri, values);
+                getContentResolver().insert(URI, values);
                 bookName.setText("");
                 price.setText("");
-                Toast.makeText(getBaseContext(), " Success !! ", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), R.string.success, Toast.LENGTH_SHORT).show();
             } catch (Exception e) {
-                Toast.makeText(getBaseContext(), "Something Error !  There's not input data !", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getBaseContext(), R.string.toast_noData, Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -376,8 +368,6 @@ public class UserActivity extends AppCompatActivity {
 
 
         setContentView(R.layout.show);
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
 
         String[] columns = new String[]{
                 _ID,
@@ -389,7 +379,7 @@ public class UserActivity extends AppCompatActivity {
         String selection = BOOK_NAME + " = ?   ";
         String[] selectionArgs = {searchBook};
         String sortOrder = SOLD + " , " + PRICE;
-        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, sortOrder);
+        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, sortOrder);
         //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
 
         if (c != null) {
@@ -414,7 +404,8 @@ public class UserActivity extends AppCompatActivity {
 
         TextView text = (TextView) findViewById(R.id.infoText);
         if (null != text) {
-            text.setText(" BOOK : " + searchBook);
+            String showBookName = getString(R.string.book_name) + searchBook;
+            text.setText(showBookName);
         }
 
     }
@@ -433,10 +424,7 @@ public class UserActivity extends AppCompatActivity {
             searchSId = sId.getText().toString();
         }
 
-
         setContentView(R.layout.show);
-        String URL = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
-        Uri uri = Uri.parse(URL);
 
         String[] columns = new String[]{
                 _ID,
@@ -447,7 +435,7 @@ public class UserActivity extends AppCompatActivity {
         };
         String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
         String[] selectionArgs = {searchSName, searchSId};
-        Cursor c = getContentResolver().query(uri, columns, selection, selectionArgs, SOLD);
+        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, SOLD);
         //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
 
         if (c != null) {
@@ -462,7 +450,6 @@ public class UserActivity extends AppCompatActivity {
                 R.id.buyer_id
         };
 
-
         SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_seller, c, columns, to, 0);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
@@ -472,8 +459,8 @@ public class UserActivity extends AppCompatActivity {
 
         TextView text = (TextView) findViewById(R.id.infoText);
         if (null != text) {
-            text.setText(" Seller : " + searchSName + " - " + searchSId);
+            String showSeller = getString(R.string.seller) + searchSName + getString(R.string.empty) + searchSId;
+            text.setText(showSeller);
         }
-
     }
 }
