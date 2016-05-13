@@ -18,8 +18,6 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-
 import static android.provider.BaseColumns._ID;
 
 public class UserActivity extends AppCompatActivity {
@@ -31,22 +29,20 @@ public class UserActivity extends AppCompatActivity {
     public static final String SOLD = "sold";
     public static final String BUYER_NAME = "buyer_name";
     public static final String BUYER_ID = "buyer_id";
-    SharedPreferences mPref;
-    String mUserName;
-    int mUserId;
     public static final String URISTRING = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
     public static final Uri URI = Uri.parse(URISTRING);
+
+
+    private String mUserName;
+    private int mUserId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.show);
-
-        File file = new File("/data/data/com.example.angelina_wu.bookstoreuser/shared_prefs", "MainActivity.xml");
-        if (file.exists()) {
-            mPref = getSharedPreferences("MainActivity", 0);
-            mUserName = mPref.getString("NAME", null);
-            mUserId = mPref.getInt("ID", 0);
-        }
+        SharedPreferences pref = getSharedPreferences(MainActivity.USER_INFO_PREFS, MODE_PRIVATE);
+        mUserName = pref.getString(MainActivity.USER_INFO_PREFS_NAME, null);
+        mUserId = pref.getInt(MainActivity.USER_INFO_PREFS_ID, 0);
         display();
     }
 
@@ -87,6 +83,8 @@ public class UserActivity extends AppCompatActivity {
         String selection = BUYER_NAME + " = ?  AND " + BUYER_ID + " = ? ";
         String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
         Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
+        startManagingCursor(c);
+
         if (c != null) {
             c.moveToFirst();
         }
@@ -124,7 +122,7 @@ public class UserActivity extends AppCompatActivity {
         String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
         String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
         Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
-        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+        startManagingCursor(c);
 
         if (c != null) {
             c.moveToFirst();
@@ -155,6 +153,8 @@ public class UserActivity extends AppCompatActivity {
                     String[] columns = {_ID, SOLD, BOOK_NAME, PRICE};
                     Cursor soldCursor = getContentResolver().query(URI, columns, selection, selectionArgs, null);
 
+
+                    assert soldCursor != null;
                     soldCursor.moveToFirst();
                     final String isSold = soldCursor.getString(1);
                     final String book = soldCursor.getString(2);
@@ -166,7 +166,7 @@ public class UserActivity extends AppCompatActivity {
                             .setPositiveButton(R.string.delete, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    int d = getContentResolver().delete(URI, selection, selectionArgs);
+                                    getContentResolver().delete(URI, selection, selectionArgs);
                                     displaySell();
                                 }
                             })
@@ -224,7 +224,7 @@ public class UserActivity extends AppCompatActivity {
         String selection = SOLD + " = ? ";
         String[] selectionArgs = {"0"};
         Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
-        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+        startManagingCursor(c);
 
         if (c != null) {
             c.moveToFirst();
@@ -255,6 +255,7 @@ public class UserActivity extends AppCompatActivity {
                     String[] columns = {_ID, SELLER_NAME, SELLER_ID};
                     Cursor soldCursor = getContentResolver().query(URI, columns, selection, selectionArgs, null);
 
+                    assert soldCursor != null;
                     soldCursor.moveToFirst();
                     final String sellerName = soldCursor.getString(1);
                     final int sellerId = soldCursor.getInt(2);
@@ -336,7 +337,7 @@ public class UserActivity extends AppCompatActivity {
                 bookName.setText("");
                 price.setText("");
                 Toast.makeText(getBaseContext(), R.string.success, Toast.LENGTH_SHORT).show();
-            } catch (Exception e) {
+            } catch (NumberFormatException e) {
                 Toast.makeText(getBaseContext(), R.string.toast_noData, Toast.LENGTH_SHORT).show();
             }
         }
@@ -380,7 +381,7 @@ public class UserActivity extends AppCompatActivity {
         String[] selectionArgs = {searchBook};
         String sortOrder = SOLD + " , " + PRICE;
         Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, sortOrder);
-        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+        startManagingCursor(c);
 
         if (c != null) {
             c.moveToFirst();
@@ -436,7 +437,8 @@ public class UserActivity extends AppCompatActivity {
         String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
         String[] selectionArgs = {searchSName, searchSId};
         Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, SOLD);
-        //getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+        startManagingCursor(c);
+
 
         if (c != null) {
             c.moveToFirst();

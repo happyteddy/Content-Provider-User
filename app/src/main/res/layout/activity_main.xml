@@ -26,6 +26,7 @@
         android:layout_centerHorizontal="true"
         android:layout_gravity="center"
         android:hint="@string/user_id"
+        android:inputType="number"
         android:textAlignment="center" />
 
     <Button

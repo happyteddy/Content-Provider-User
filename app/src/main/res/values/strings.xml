@@ -26,7 +26,7 @@
     <string name="no"> No </string>
 
     <string name="toast_delete"> Delete all data : </string>
-    <string name="toast_noData"> Something Error !  There\'s not input data ! </string>
+    <string name="toast_noData"> NumberFormatException! </string>
 
     <string name="text_Buy"> Buyer ( = User) : </string>
     <string name="text_Sell"> Seller ( = User ) : </string>

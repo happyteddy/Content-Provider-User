@@ -13,32 +13,35 @@ import android.widget.Toast;
 import static android.provider.BaseColumns._ID;
 
 public class MainActivity extends AppCompatActivity {
-    protected SharedPreferences mPref;
+    public static final String USER_INFO_PREFS = "user_info_prefs";
+    public static final String USER_INFO_PREFS_NAME = "NAME";
+    public static final String USER_INFO_PREFS_ID = "ID";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        mPref = getPreferences(MODE_APPEND);
     }
-    public void enter (View view) {
+
+    public void enter(View view) {
         EditText name = (EditText) findViewById(R.id.userName);
         EditText id = (EditText) findViewById(R.id.userId);
 
-        SharedPreferences.Editor editor = mPref.edit();
+        SharedPreferences prefs = getSharedPreferences(USER_INFO_PREFS, MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
         editor.clear();
-        try {
-            if ((name != null) && (id != null)) {
-                editor.putString("NAME", name.getText().toString());
-                editor.putInt("ID", Integer.parseInt(id.getText().toString()));
+
+        if ((name != null) && (id != null)) {
+            try {
+                editor.putString(USER_INFO_PREFS_NAME, name.getText().toString());
+                editor.putInt(USER_INFO_PREFS_ID, Integer.parseInt(id.getText().toString()));
                 editor.commit(); //commit() 直接將異動結果寫入檔案
+                name.setText("");
+                id.setText("");
+                Intent intent = new Intent(this, UserActivity.class);
+                startActivity(intent);
+            } catch (NumberFormatException e) {
+                Toast.makeText(getBaseContext(), " NumberFormatException !", Toast.LENGTH_SHORT).show();
             }
-            Intent intent = new Intent(this, UserActivity.class);
-            startActivity(intent);
-        }catch (Exception e) {
-            Toast.makeText(getBaseContext(), "Something Error !  There's not input data !", Toast.LENGTH_SHORT).show();
         }
-        name.setText("");
-        id.setText("");
     }
 }
