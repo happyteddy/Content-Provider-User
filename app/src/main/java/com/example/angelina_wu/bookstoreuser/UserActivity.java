@@ -6,6 +6,9 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
@@ -20,7 +23,7 @@ import android.widget.Toast;
 
 import static android.provider.BaseColumns._ID;
 
-public class UserActivity extends AppCompatActivity {
+public class UserActivity extends AppCompatActivity  implements LoaderManager.LoaderCallbacks<Cursor> {
 
     public static final String SELLER_NAME = "seller_name";
     public static final String SELLER_ID = "seller_id";
@@ -32,7 +35,13 @@ public class UserActivity extends AppCompatActivity {
     public static final String URISTRING = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
     public static final Uri URI = Uri.parse(URISTRING);
 
+    private static final int DISPLAY = 0;
+    private static final int DISPLAY_BUY = 1;
+    private static final int DISPLAY_SELL = 2;
+    private static final int SEARCH_BOOK = 3;
+    private static final int SEARCH_SELLER = 4;
 
+    private SimpleCursorAdapter mDataAdapter;
     private String mUserName;
     private int mUserId;
 
@@ -81,14 +90,6 @@ public class UserActivity extends AppCompatActivity {
                 BOOK_NAME,
                 PRICE
         };
-        String selection = BUYER_NAME + " = ?  AND " + BUYER_ID + " = ? ";
-        String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
-        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
-        startManagingCursor(c);
-
-        if (c != null) {
-            c.moveToFirst();
-        }
 
         int[] to = new int[]{
                 R.id.id,
@@ -98,11 +99,12 @@ public class UserActivity extends AppCompatActivity {
                 R.id.price,
         };
 
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list, c, columns, to, 0);
+        mDataAdapter = new SimpleCursorAdapter(this, R.layout.list, null, columns, to, 0);
 
         ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
-            listView.setAdapter(dataAdapter);
+            listView.setAdapter(mDataAdapter);
+            getSupportLoaderManager().initLoader(DISPLAY_BUY, null, this);
         }
     }
 
@@ -112,7 +114,6 @@ public class UserActivity extends AppCompatActivity {
             String showSeller = getString(R.string.text_Sell) + mUserName + getString(R.string.empty) + Integer.toString(mUserId);
             text.setText(showSeller);
         }
-        // Retrieve student records
 
         String[] columns = new String[]{
                 _ID,
@@ -120,14 +121,6 @@ public class UserActivity extends AppCompatActivity {
                 PRICE,
                 SOLD
         };
-        String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
-        String[] selectionArgs = {mUserName, Integer.toString(mUserId)};
-        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
-        startManagingCursor(c);
-
-        if (c != null) {
-            c.moveToFirst();
-        }
 
         int[] to = new int[]{
                 R.id.id,
@@ -136,12 +129,12 @@ public class UserActivity extends AppCompatActivity {
                 R.id.sold
         };
 
-
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_sell, c, columns, to, 0);
+        mDataAdapter = new SimpleCursorAdapter(this, R.layout.list_sell, null, columns, to, 0);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
-            listView.setAdapter(dataAdapter);
+            listView.setAdapter(mDataAdapter);
+            getSupportLoaderManager().initLoader(DISPLAY_SELL, null, this);
 
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
@@ -154,13 +147,13 @@ public class UserActivity extends AppCompatActivity {
                     String[] columns = {_ID, SOLD, BOOK_NAME, PRICE};
                     Cursor soldCursor = getContentResolver().query(URI, columns, selection, selectionArgs, null);
 
-
                     assert soldCursor != null;
                     soldCursor.moveToFirst();
                     final String isSold = soldCursor.getString(1);
                     final String book = soldCursor.getString(2);
                     final int price = soldCursor.getInt(3);
                     soldCursor.close();
+
                     final String mes = getString(R.string.book_name) + book + getString(R.string.price) + Integer.toString(price) ;
                     new AlertDialog.Builder(UserActivity.this)
                             .setMessage(mes)
@@ -168,7 +161,7 @@ public class UserActivity extends AppCompatActivity {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     getContentResolver().delete(URI, selection, selectionArgs);
-                                    displaySell();
+                                    //displaySell();
                                 }
                             })
                             .setNegativeButton(R.string.update, new DialogInterface.OnClickListener() {
@@ -188,7 +181,7 @@ public class UserActivity extends AppCompatActivity {
                                                         ContentValues args = new ContentValues();
                                                         args.put(PRICE, newPrice);
                                                         getContentResolver().update(URI, args, selection, selectionArgs);
-                                                        displaySell();
+                                                        //displaySell();
                                                     }
                                                 }).show();
                                     } else {
@@ -222,14 +215,6 @@ public class UserActivity extends AppCompatActivity {
                 BOOK_NAME,
                 PRICE
         };
-        String selection = SOLD + " = ? ";
-        String[] selectionArgs = {"0"};
-        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, null);
-        startManagingCursor(c);
-
-        if (c != null) {
-            c.moveToFirst();
-        }
 
         int[] to = new int[]{
                 R.id.id,
@@ -239,11 +224,12 @@ public class UserActivity extends AppCompatActivity {
                 R.id.price,
         };
 
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list, c, columns, to, 0);
+        mDataAdapter = new SimpleCursorAdapter(this, R.layout.list, null, columns, to, 0);
         final ListView listView = (ListView) findViewById(R.id.listView);
 
         if (null != listView) {
-            listView.setAdapter(dataAdapter);
+            listView.setAdapter(mDataAdapter);
+            getSupportLoaderManager().initLoader(DISPLAY, null, this);
 
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
@@ -282,7 +268,7 @@ public class UserActivity extends AppCompatActivity {
                                         args.put(BUYER_NAME,mUserName);
                                         args.put(BUYER_ID, mUserId);
                                         getContentResolver().update(URI, args, selection, selectionArgs);
-                                        displaySell();
+                                       // displaySell();
                                     }
                                 })
                                 .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
@@ -368,7 +354,6 @@ public class UserActivity extends AppCompatActivity {
             searchBook = book.getText().toString();
         }
 
-
         setContentView(R.layout.show);
 
         String[] columns = new String[]{
@@ -378,15 +363,6 @@ public class UserActivity extends AppCompatActivity {
                 PRICE,
                 SOLD
         };
-        String selection = BOOK_NAME + " = ?   ";
-        String[] selectionArgs = {searchBook};
-        String sortOrder = SOLD + " , " + PRICE;
-        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, sortOrder);
-        startManagingCursor(c);
-
-        if (c != null) {
-            c.moveToFirst();
-        }
 
         int[] to = new int[]{
                 R.id.id,
@@ -396,12 +372,14 @@ public class UserActivity extends AppCompatActivity {
                 R.id.sold
         };
 
-
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_book, c, columns, to, 0);
+        mDataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_book, null, columns, to, 0);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
-            listView.setAdapter(dataAdapter);
+            listView.setAdapter(mDataAdapter);
+            Bundle b = new Bundle();
+            b.putString(BOOK_NAME,searchBook);
+            getSupportLoaderManager().initLoader(SEARCH_BOOK, b, this);
         }
 
         TextView text = (TextView) findViewById(R.id.infoText);
@@ -435,15 +413,6 @@ public class UserActivity extends AppCompatActivity {
                 BUYER_NAME,
                 BUYER_ID
         };
-        String selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
-        String[] selectionArgs = {searchSName, searchSId};
-        Cursor c = getContentResolver().query(URI, columns, selection, selectionArgs, SOLD);
-        startManagingCursor(c);
-
-
-        if (c != null) {
-            c.moveToFirst();
-        }
 
         int[] to = new int[]{
                 R.id.id,
@@ -453,11 +422,15 @@ public class UserActivity extends AppCompatActivity {
                 R.id.buyer_id
         };
 
-        SimpleCursorAdapter dataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_seller, c, columns, to, 0);
+        mDataAdapter = new SimpleCursorAdapter(this, R.layout.list_search_seller, null, columns, to, 0);
 
         final ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
-            listView.setAdapter(dataAdapter);
+            listView.setAdapter(mDataAdapter);
+            Bundle b = new Bundle();
+            b.putString(SELLER_NAME,searchSName);
+            b.putString(SELLER_ID,searchSId);
+            getSupportLoaderManager().initLoader(SEARCH_SELLER, b, this);
         }
 
         TextView text = (TextView) findViewById(R.id.infoText);
@@ -465,5 +438,84 @@ public class UserActivity extends AppCompatActivity {
             String showSeller = getString(R.string.seller) + searchSName + getString(R.string.empty) + searchSId;
             text.setText(showSeller);
         }
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        CursorLoader cl = null ;
+        String selection = null ;
+        String[] selectionArgs = {};
+        String[] projection = {};
+        String sortOrder = null ;
+        switch (id) {
+            case DISPLAY:
+                projection = new String[]{
+                        _ID,
+                        SELLER_NAME,
+                        SELLER_ID,
+                        BOOK_NAME,
+                        PRICE
+                };
+                selection = SOLD + " = ? ";
+                selectionArgs = new String[]{"0"};
+                break;
+            case DISPLAY_BUY:
+                selection = BUYER_NAME + " = ?  AND " + BUYER_ID + " = ? ";
+                selectionArgs = new String[] {mUserName, Integer.toString(mUserId)};
+                projection = new String[]{
+                        _ID,
+                        SELLER_NAME,
+                        SELLER_ID,
+                        BOOK_NAME,
+                        PRICE
+                };
+                break;
+            case DISPLAY_SELL:
+                projection = new String[]{
+                        _ID,
+                        BOOK_NAME,
+                        PRICE,
+                        SOLD
+                };
+                selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
+                selectionArgs = new String[]{mUserName, Integer.toString(mUserId)};
+                break;
+            case SEARCH_BOOK:
+                projection = new String[]{
+                        _ID,
+                        SELLER_NAME,
+                        SELLER_ID,
+                        PRICE,
+                        SOLD
+                };
+                selection = BOOK_NAME + " = ?   ";
+                selectionArgs = new String[]{args.getString(BOOK_NAME)};
+                sortOrder = SOLD + " , " + PRICE;
+                break;
+            case SEARCH_SELLER:
+                projection = new String[]{
+                        _ID,
+                        BOOK_NAME,
+                        PRICE,
+                        BUYER_NAME,
+                        BUYER_ID
+                };
+                selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
+                selectionArgs = new String[]{args.getString(SELLER_NAME), args.getString(SELLER_ID)};
+                sortOrder = SOLD ;
+                break;
+        }
+        cl = new CursorLoader(this, URI, projection, selection, selectionArgs, sortOrder);
+        return cl;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mDataAdapter.swapCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        mDataAdapter.swapCursor(null);
     }
 }
