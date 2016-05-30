@@ -48,7 +48,8 @@ public class UserActivity extends AppCompatActivity {
 
     public void delete(View view) {
         int d = getContentResolver().delete(URI, null, null);
-        Toast.makeText(getBaseContext(), R.string.toast_delete + d, Toast.LENGTH_SHORT).show();
+        String s = getString( R.string.toast_delete ) + d;
+        Toast.makeText(getBaseContext(), s, Toast.LENGTH_SHORT).show();
         display();
     }
 
