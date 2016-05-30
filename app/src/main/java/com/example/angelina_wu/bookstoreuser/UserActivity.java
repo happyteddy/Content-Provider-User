@@ -35,11 +35,14 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
     public static final String URISTRING = "content://com.example.angelina_wu.bookstorecontentproviderowner/information";
     public static final Uri URI = Uri.parse(URISTRING);
 
-    private static final int DISPLAY = 0;
-    private static final int DISPLAY_BUY = 1;
-    private static final int DISPLAY_SELL = 2;
-    private static final int SEARCH_BOOK = 3;
-    private static final int SEARCH_SELLER = 4;
+    public static final int DISPLAY = 0;
+    public static final int DISPLAY_BUY = 1;
+    public static final int DISPLAY_SELL = 2;
+    public static final int SEARCH_BOOK = 3;
+    public static final int SEARCH_SELLER = 4;
+
+    public static final int LOADER_1 = 0;
+    public static final String STATE = "state";
 
     private SimpleCursorAdapter mDataAdapter;
     private String mUserName;
@@ -52,6 +55,8 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
         SharedPreferences pref = getSharedPreferences(MainActivity.USER_INFO_PREFS, MODE_PRIVATE);
         mUserName = pref.getString(MainActivity.USER_INFO_PREFS_NAME, null);
         mUserId = pref.getInt(MainActivity.USER_INFO_PREFS_ID, 0);
+        Bundle b = new Bundle();
+        getSupportLoaderManager().initLoader(LOADER_1, b, this);
         display();
     }
 
@@ -104,7 +109,9 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
         ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
             listView.setAdapter(mDataAdapter);
-            getSupportLoaderManager().initLoader(DISPLAY_BUY, null, this);
+            Bundle b = new Bundle();
+            b.putInt(STATE, DISPLAY_BUY);
+            getSupportLoaderManager().restartLoader(LOADER_1, b, this);
         }
     }
 
@@ -134,7 +141,9 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
         final ListView listView = (ListView) findViewById(R.id.listView);
         if (null != listView) {
             listView.setAdapter(mDataAdapter);
-            getSupportLoaderManager().initLoader(DISPLAY_SELL, null, this);
+            Bundle b = new Bundle();
+            b.putInt(STATE, DISPLAY_SELL);
+            getSupportLoaderManager().restartLoader(LOADER_1, b, this);
 
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
@@ -229,7 +238,9 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
 
         if (null != listView) {
             listView.setAdapter(mDataAdapter);
-            getSupportLoaderManager().initLoader(DISPLAY, null, this);
+            Bundle b = new Bundle();
+            b.putInt(STATE, DISPLAY);
+            getSupportLoaderManager().restartLoader(LOADER_1, b, this);
 
             listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
                 @Override
@@ -379,7 +390,9 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
             listView.setAdapter(mDataAdapter);
             Bundle b = new Bundle();
             b.putString(BOOK_NAME,searchBook);
-            getSupportLoaderManager().initLoader(SEARCH_BOOK, b, this);
+            b.putInt(STATE, SEARCH_BOOK);
+            getSupportLoaderManager().restartLoader(LOADER_1, b, this);
+
         }
 
         TextView text = (TextView) findViewById(R.id.infoText);
@@ -428,9 +441,10 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
         if (null != listView) {
             listView.setAdapter(mDataAdapter);
             Bundle b = new Bundle();
-            b.putString(SELLER_NAME,searchSName);
-            b.putString(SELLER_ID,searchSId);
-            getSupportLoaderManager().initLoader(SEARCH_SELLER, b, this);
+            b.putString(SELLER_NAME, searchSName);
+            b.putString(SELLER_ID, searchSId);
+            b.putInt(STATE, SEARCH_SELLER);
+            getSupportLoaderManager().restartLoader(LOADER_1, b, this);
         }
 
         TextView text = (TextView) findViewById(R.id.infoText);
@@ -447,7 +461,8 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
         String[] selectionArgs = {};
         String[] projection = {};
         String sortOrder = null ;
-        switch (id) {
+        int state = args.getInt(STATE);
+        switch (state) {
             case DISPLAY:
                 projection = new String[]{
                         _ID,
@@ -503,6 +518,8 @@ public class UserActivity extends AppCompatActivity  implements LoaderManager.Lo
                 selection = SELLER_NAME + " = ?  AND " + SELLER_ID + " = ? ";
                 selectionArgs = new String[]{args.getString(SELLER_NAME), args.getString(SELLER_ID)};
                 sortOrder = SOLD ;
+                break;
+            default:
                 break;
         }
         cl = new CursorLoader(this, URI, projection, selection, selectionArgs, sortOrder);
